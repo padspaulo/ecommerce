@@ -8,21 +8,21 @@ use \Hcode\Mailer;
 
 class Category extends Model {
 
-
 	public static function listAll()
 	{
 
 		$sql = new Sql();
 
 		return $sql->select("SELECT * FROM tb_categories ORDER BY descategory");
+
 	}
 
-	public function save(){
+	public function save()
+	{
 
 		$sql = new Sql();
 
 		$results = $sql->select("CALL sp_categories_save(:idcategory, :descategory)", array(
-			
 			":idcategory"=>$this->getidcategory(),
 			":descategory"=>$this->getdescategory()
 		));
@@ -30,29 +30,33 @@ class Category extends Model {
 		$this->setData($results[0]);
 
 		Category::updateFile();
+
 	}
 
-	public function get($idcategory){
+	public function get($idcategory)
+	{
 
 		$sql = new Sql();
 
 		$results = $sql->select("SELECT * FROM tb_categories WHERE idcategory = :idcategory", [
-
 			':idcategory'=>$idcategory
 		]);
 
 		$this->setData($results[0]);
+
 	}
 
-	public function delete(){
+	public function delete()
+	{
 
 		$sql = new Sql();
 
 		$sql->query("DELETE FROM tb_categories WHERE idcategory = :idcategory", [
-			'idcategory'=>$this->getidcategory()
+			':idcategory'=>$this->getidcategory()
 		]);
 
 		Category::updateFile();
+
 	}
 
 	public static function updateFile()
@@ -63,14 +67,15 @@ class Category extends Model {
 		$html = [];
 
 		foreach ($categories as $row) {
-			array_push($html, '<li><a href="categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
+			array_push($html, '<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
 		}
 
 		file_put_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . "categories-menu.html", implode('', $html));
 
 	}
 
-	public function getProducts($related = true){
+	public function getProducts($related = true)
+	{
 
 		$sql = new Sql();
 
@@ -101,6 +106,7 @@ class Category extends Model {
 			]);
 
 		}
+
 	}
 
 	public function getProductsPage($page = 1, $itemsPerPage = 8)
@@ -154,7 +160,58 @@ class Category extends Model {
 		]);
 
 	}
+			
+	public static function getPage($page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_categories 
+			ORDER BY descategory
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_categories 
+			WHERE descategory LIKE :search
+			ORDER BY descategory
+			LIMIT $start, $itemsPerPage;
+		", [
+			':search'=>'%'.$search.'%'
+		]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
 }
 
  ?>
-	

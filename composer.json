@@ -2,12 +2,12 @@
     "name": "hcodebr/ecommerce",
     "authors": [
         {
-            "name": "paulo",
-            "email": "pads.paulo.santos@gmail.com"
+            "name": "Hcode Treinamentos",
+            "email": "suporte@hcode.com.br"
         }
     ],
     "require": {
-    	"phpmailer/phpmailer":"5.2.22",
+    	"phpmailer/phpmailer":"6.1.6",
     	"slim/slim":"2.0",
     	"rain/raintpl":"3.0.0"
     },
